@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <%- include head.ejs %>  
+  <body>
+    <%- include header.ejs %>      
+    <main>
+      <script src="/js/comment-controller.js"></script>  
+      <script src="/js/profile-controller.js"></script>
+      <div class="app-content">
+	<div class="account-container">
+	  
+	  <div class="pure-g profile-main-display">
+	  
+	    <div class="pure-u-1-5 profile-info-display">	      
+	      <h2> <%= profile.name.suffix %>  <%= profile.name.first %> <%= profile.name.last %></h2>
+	      <img class="pure-img avatar" src="<%- profile.links.avatar %>">
+	      <p>Joined <%= profile.displaySettings.dateJoined %></p>
+	      <p><%= profile.files.length %> datascape(s)</p>
+	      <% if (profile.profileSettings.displayEmail) { %>
+	      <p><a href="mailto:<%- profile.email %>"><%= profile.email %></a> </p>
+	      <% } %>
+	      <p><h3>
+	    </div>
+	       
+	    <div class="pure-u-4-5 position-relative">
+	      <div class="datascape-tile-preview-container">
+		<h2 class="center-text">Portfolio </h2>
+		
+		<div class="pure-g" id="datascape-tile-preview-anchor">
+		  <!-- Anything placed in this div will be deleted when the page is loaded -->
+		</div>
+		
+		<div class="pure-g top-m-2">
+		  
+		  <div class="pure-u-1-2">
+		    <button class="pure-button centered-m" id="prev-page">
+	              <i class="fa fa-arrow-left fa-2x"></i>
+		    </button>
+		  </div>
+		  
+		  <div class="pure-u-1-2">
+		    <button class="pure-button centered-m" id="next-page">
+		      <i class="fa fa-arrow-right fa-2x"></i>
+		    </button>
+		  </div>
+		  
+		  
+		</div>
+	      </div>
+	    </div>
+	    
+	  </div>  
+	  
+	  <div id="comments-container" class="jquery-comments"></div> 
+	</div>
+    </main>
+    <%- include footer.ejs %>  
+  </body>  
+</html>

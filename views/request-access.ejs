@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <%- include head.ejs %>  
+  <body>
+    <%- include header.ejs %>      
+    <main>
+     
+      <div class="app-content">
+	<div class="form-container">
+	  <h1>Datascape <i><%= datascape.displaySettings.title %></i> isn't public<% if (user) { %> (or shared with you)<% } %>.</h1>
+	  <!-- <p> You do not have access to this datascape.</p>-->
+	  
+	  <% if (user) { %>
+	  <form class="pure-form pure-form-aligned" action="<%- datascape.links.link %>/request-access" method="post">
+	    <button type="submit" class="pure-button pure-button-primary">Request Access</button>
+	  </form>
+	  
+	  <% } else { %>
+	  
+	  <p> <a href="/sign-in">Sign in</a> to Pcaso (or <a href="/sign-up">sign up</a>*) to request access <i><%= datascape.displaySettings.title %></i>.</p>
+	  
+	  <br>
+	  
+	  <p>*If you got a Pcaso invitation to see this datascape, make sure to sign in/up under the same email address the invitation came to.</p>
+
+	  <% } %>
+	</div>
+      </div>
+      
+      
+    </main>
+    <%- include footer.ejs %>  
+  </body>  
+</html>

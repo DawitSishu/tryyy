@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <!-- <%- include head.ejs %>   -->
+  <body>
+    <!-- <%- include header.ejs %>       -->
+    <main>
+      <script src="http://gabelerner.github.io/canvg/StackBlur.js"></script>
+      <script src="http://gabelerner.github.io/canvg/rgbcolor.js"></script> 
+      <script src="http://gabelerner.github.io/canvg/canvg.js"></script> 
+      <script src="/components/FileSaver/FileSaver.min.js"></script>
+      <script src="/components/d3/d3.min.js"></script>
+      <script src="/public/js/legacy/pcaso-painting-service.js"></script>
+      <script src="/public/js/comment-controller.js"></script>  
+
+      <div class="datascape-container">
+        <div class="title center">
+          <p>
+            <span class="fa-3x"><%= datascape.displaySettings.title %></span>
+            <span class="font-size-small">
+              <%- (datascape.links && datascape.links.parent) ? 'by ' : '' %>
+              <a href="<%- (datascape.links && datascape.links.parent) ? datascape.links.parent : '#' %>">
+                <!-- <% if (datascape.parent && datascape.parent.name) { %>
+                  <%= datascape.parent.name.first ? datascape.parent.name.first : 'Unknown' %> 
+                  <%= datascape.parent.name.last ? datascape.parent.name.last : '' %>
+                <% } else { %>
+                  Unknown User
+                <% } %> -->
+              </a>
+            </span>
+          </p>  	  
+        </div>
+
+        <div id="loading">
+          <h3><i class="fa fa-spinner fa-spin fa-2x"> </i> Painting data...</h3>
+        </div>
+
+        <!-- Placeholder for CSV data at the bottom of the page -->
+        <div class="csv-table-section">
+          <h3>Data Preview</h3>
+          <% if (csvData && csvData.length > 0) { %>
+            <div id="csv-table-container" style="overflow-x: auto;">
+              <table border="1" cellpadding="5" cellspacing="0">
+                <thead>
+                  <tr>
+                    <% Object.keys(csvData[0]).forEach(function(key) { %>
+                      <th><%= key %></th>
+                    <% }); %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% csvData.forEach(function(row) { %>
+                    <tr>
+                      <% Object.keys(row).forEach(function(key) { %>
+                        <td><%= row[key] %></td>
+                      <% }); %>
+                    </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+            </div>
+          <% } else { %>
+            <p>No data to display.</p>
+          <% } %>
+        </div>
+      </div>      
+
+      <div class="app-content">
+        <div id="comments-container" class="jquery-comments"></div> 
+      </div>
+    </main>
+
+  </body>
+</html>
