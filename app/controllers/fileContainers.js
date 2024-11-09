@@ -187,7 +187,6 @@ exports.displayDatascape = function (req, res) {
     } catch (err) {
       console.error("Error reading CSV file:", err);
     }
-
     res.render("datascape.ejs", {
       user: req.user,
       datascape: doc,

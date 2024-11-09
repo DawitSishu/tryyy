@@ -1,4 +1,10 @@
-var focusEntity  = window.globaData.focusEntity;
+console.log("kkk")
+
+var focusEntity  ={
+	links : {
+		bullet: "1234"
+	}
+};
 
 
 $(function(){
@@ -12,7 +18,8 @@ $(function(){
     }
     
     $("#twitter-link").attr("href", "https://twitter.com/intent/tweet?" + $.param( twitterLinkBody ))
-    console.log( $("#twitter-link").attr("href"), $("#twitter-link") );
+    
+	console.log( $("#twitter-link").attr("href") );
     
     
     // Take snapshot
@@ -158,11 +165,7 @@ $(function(){
     function parseData(rawData){
 	
 	var head = [];
-	var previewLimit = 100;
-	data = d3.csv.parse(rawData, function(d, i){
-        if(i < previewLimit) head.push(d);
-        return i < previewLimit ? d : null; 
-    }).filter(Boolean);
+	// Un-hide step 2
 	
 	//document.getElementById('step2').style.visibility = "visible";
 
@@ -258,7 +261,8 @@ $(function(){
 		//config = JSON.parse(config)
 
 		// --		
-		p2 = "fields-pca"; p = config[p2]; _c['fields-pca'] = [];
+		/* p2 = "fields-pca"; p = config[p2]; _c['fields-pca'] = [];
+		console.log(config.search("fields-pca"))
 		for(i=0; i<p.length; i++) _c['fields-pca'][i] = parseInt(p[i])
 
 		p2 = "fields-meta";    p = config[p2]; _c['fields-meta'] = [];    for(i=0; i<p.length; i++) _c['fields-meta'][i] = parseInt(p[i])
@@ -284,11 +288,16 @@ $(function(){
 		_c["caption"] = config["caption"]
 		//
 		// document.getElementById('pcaso-upload').style.display = "none"
-		document.getElementById('pcaso-panel').style.display = "inline-block"
-		document.getElementById('pcaso').style.visibility = "visible"
+		*/
+		console.log("in here")
+		document.getElementById('pcaso-panel').style.display = "inline-block";
+document.getElementById('pcaso').style.display = "inline";
+
+		// document.getElementById('pcaso-panel').style.display = "inline-block"
+		// document.getElementById('pcaso').style.visibility = "visible"
 		//document.getElementById('backBtn').style.display = "block"
 		//document.getElementById('loading').style.display = "none"		//
-		
+		console.log("in here")
 		pcaso();
 	    }
 	}); //  POSSIBLE CAUSE
@@ -327,7 +336,7 @@ $(function(){
 	document.getElementById("pcaso").innerHTML = '';
 
 	// Get window size and determine SVG size
-	_c['nPCs']   = _c['fields-pca'].length
+	_c['nPCs']   = 20
 	_c['width']  = getWindowSize()
 	_c['height'] = getWindowSize()
 	_c['size']   = getWindowSize() / (0.2 + _c['nPCs'])
@@ -343,7 +352,7 @@ $(function(){
 
 
 	// Dynamic app settings
-	_p_colorBy = _c['fields-meta'][0]
+	_p_colorBy = 15
 	_p_legend = {}
 	_p_header = []
 
@@ -377,7 +386,7 @@ $(function(){
 	// -- Load data
 	// Parse header
 	_p_header = d3.keys(data[0])
-	PCs = _p_header.filter(function(d, i) { return _c['fields-pca'].indexOf(i+1) > -1; })
+	PCs = _p_header.filter(function(d, i) { return (i+1) > -1; })
 
 	// Get domain for each PC
 	domainByPC = {};
@@ -437,7 +446,6 @@ $(function(){
 	    .each(drawCell);
 
 
-
 	drawPreview(PC_pairs[0]);
 
 	
@@ -488,12 +496,12 @@ $(function(){
 
 	    size = preview_size();
 	    
-	    console.log([  responsive_padding / 2, size - responsive_padding / 2]);
+	    // console.log([  responsive_padding / 2, size - responsive_padding / 2]);
 	    preview_x_scale.range([  responsive_padding / 2, size - responsive_padding / 2]);
 	    preview_y_scale.range([ size - responsive_padding / 2, responsive_padding / 2]);
-
+		console.log("huh",domainByPC)
 	    preview_x_scale.domain(domainByPC[p.x]);
-	    preview_y_scale.domain(domainByPC[p.y]);
+	    preview_y_scale.domain(domainByPC[p.x]);
 
 	    brush.x(preview_x_scale).y(preview_y_scale)
 	    
@@ -616,8 +624,9 @@ $(function(){
 	    
 	    // -- Draw
 	    // Set x/y ranges and axes
+		console.log()
 	    x.domain(domainByPC[p.x]);
-	    y.domain(domainByPC[p.y]);
+	    y.domain(domainByPC[p.j]);
 	    
 
 	    // Draw box
@@ -905,6 +914,7 @@ $(function(){
 
 	if (numeric_columns.indexOf(_p_header[_p_colorBy-1]) > -1) {
 	    // Numeric: Diverging
+		console.log("ahaha0", legend)
 	    if (legend.length <= 3) {
 		_p_color   = d3.scale.ordinal().domain(legend).range(colorbrewer["RdYlBu"][3]); // Use PuBuGn to avoid yellow 
 	    } else if (legend.length <= 11) {
@@ -1175,22 +1185,25 @@ $(function(){
 	// e.g. x = [ 1, 2, 3, 5 ]
 	//      y = [ 1, 2, 3, 7 ]
 	//      Returns pairs of [1,2,3], and [0,4]/[5,7]
-	function getLayoutPairs(x, y)
-    {
-	// Init
-	var pairs = [], i, j;
-	var n     = x.length - 1;
-
-	// Generate lower triangular pairs
-	for(j = 0; j < n; j++)
-	    for(i = 0; i < j; i++)
-		pairs.push({ i:i, j:j, x:x[i], y:y[j] })
-
-	// Extra box for top right preview box
-	// pairs.push({ i:0, j:n - 2, x:x[1], y:y[0] })
-
-	return pairs;
-    }
+	function getLayoutPairs(x, y) {
+		// Init
+		let pairs = [];
+		let n = x.length - 1;
+	
+		// Generate lower triangular pairs
+		for (let j = 0; j < n; j++) {
+			for (let i = 0; i < j; i++) {
+				pairs.push({ i: i, j: j, x: x[i], y: y[j] });
+			}
+		}
+	
+		// Add top-right pair for preview box
+		// This will be the first element of `x` and the last element of `y`
+		pairs.push({ i: 0, j: n, x: x[0], y: y[n] });
+	
+		console.log("pairs", pairs);
+		return pairs;
+	}
 
 
     // ===========================================================================
@@ -1302,4 +1315,3 @@ $(function(){
 	RdGy:{3:["#ef8a62","#ffffff","#999999"],4:["#ca0020","#f4a582","#bababa","#404040"],5:["#ca0020","#f4a582","#ffffff","#bababa","#404040"],6:["#b2182b","#ef8a62","#fddbc7","#e0e0e0","#999999","#4d4d4d"],7:["#b2182b","#ef8a62","#fddbc7","#ffffff","#e0e0e0","#999999","#4d4d4d"],8:["#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d"],9:["#b2182b","#d6604d","#f4a582","#fddbc7","#ffffff","#e0e0e0","#bababa","#878787","#4d4d4d"],10:["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"],11:["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#ffffff","#e0e0e0","#bababa","#878787","#4d4d4d","#1a1a1a"]},
 	RdYlBu:{3:["#fc8d59","#ffffbf","#91bfdb"],4:["#d7191c","#fdae61","#abd9e9","#2c7bb6"],5:["#d7191c","#fdae61","#ffffbf","#abd9e9","#2c7bb6"],6:["#d73027","#fc8d59","#fee090","#e0f3f8","#91bfdb","#4575b4"],7:["#d73027","#fc8d59","#fee090","#ffffbf","#e0f3f8","#91bfdb","#4575b4"],8:["#d73027","#f46d43","#fdae61","#fee090","#e0f3f8","#abd9e9","#74add1","#4575b4"],9:["#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4"],10:["#a50026","#d73027","#f46d43","#fdae61","#fee090","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"],11:["#a50026","#d73027","#f46d43","#fdae61","#fee090","#ffffbf","#e0f3f8","#abd9e9","#74add1","#4575b4","#313695"]},Spectral:{3:["#fc8d59","#ffffbf","#99d594"],4:["#d7191c","#fdae61","#abdda4","#2b83ba"],5:["#d7191c","#fdae61","#ffffbf","#abdda4","#2b83ba"],6:["#d53e4f","#fc8d59","#fee08b","#e6f598","#99d594","#3288bd"],7:["#d53e4f","#fc8d59","#fee08b","#ffffbf","#e6f598","#99d594","#3288bd"],8:["#d53e4f","#f46d43","#fdae61","#fee08b","#e6f598","#abdda4","#66c2a5","#3288bd"],9:["#d53e4f","#f46d43","#fdae61","#fee08b","#ffffbf","#e6f598","#abdda4","#66c2a5","#3288bd"],10:["#9e0142","#d53e4f","#f46d43","#fdae61","#fee08b","#e6f598","#abdda4","#66c2a5","#3288bd","#5e4fa2"],11:["#9e0142","#d53e4f","#f46d43","#fdae61","#fee08b","#ffffbf","#e6f598","#abdda4","#66c2a5","#3288bd","#5e4fa2"]},RdYlGn:{3:["#fc8d59","#ffffbf","#91cf60"],4:["#d7191c","#fdae61","#a6d96a","#1a9641"],5:["#d7191c","#fdae61","#ffffbf","#a6d96a","#1a9641"],6:["#d73027","#fc8d59","#fee08b","#d9ef8b","#91cf60","#1a9850"],7:["#d73027","#fc8d59","#fee08b","#ffffbf","#d9ef8b","#91cf60","#1a9850"],8:["#d73027","#f46d43","#fdae61","#fee08b","#d9ef8b","#a6d96a","#66bd63","#1a9850"],9:["#d73027","#f46d43","#fdae61","#fee08b","#ffffbf","#d9ef8b","#a6d96a","#66bd63","#1a9850"],10:["#a50026","#d73027","#f46d43","#fdae61","#fee08b","#d9ef8b","#a6d96a","#66bd63","#1a9850","#006837"],11:["#a50026","#d73027","#f46d43","#fdae61","#fee08b","#ffffbf","#d9ef8b","#a6d96a","#66bd63","#1a9850","#006837"]},Accent:{3:["#7fc97f","#beaed4","#fdc086"],4:["#7fc97f","#beaed4","#fdc086","#ffff99"],5:["#7fc97f","#beaed4","#fdc086","#ffff99","#386cb0"],6:["#7fc97f","#beaed4","#fdc086","#ffff99","#386cb0","#f0027f"],7:["#7fc97f","#beaed4","#fdc086","#ffff99","#386cb0","#f0027f","#bf5b17"],8:["#7fc97f","#beaed4","#fdc086","#ffff99","#386cb0","#f0027f","#bf5b17","#666666"]},Dark2:{3:["#1b9e77","#d95f02","#7570b3"],4:["#1b9e77","#d95f02","#7570b3","#e7298a"],5:["#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e"],6:["#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e","#e6ab02"],7:["#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e","#e6ab02","#a6761d"],8:["#1b9e77","#d95f02","#7570b3","#e7298a","#66a61e","#e6ab02","#a6761d","#666666"]},Paired:{3:["#a6cee3","#1f78b4","#b2df8a"],4:["#a6cee3","#1f78b4","#b2df8a","#33a02c"],5:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99"],6:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c"],7:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f"],8:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00"],9:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6"],10:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a"],11:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99"],12:["#a6cee3","#1f78b4","#b2df8a","#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99","#b15928"]},Pastel1:{3:["#fbb4ae","#b3cde3","#ccebc5"],4:["#fbb4ae","#b3cde3","#ccebc5","#decbe4"],5:["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6"],6:["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc"],7:["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd"],8:["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec"],9:["#fbb4ae","#b3cde3","#ccebc5","#decbe4","#fed9a6","#ffffcc","#e5d8bd","#fddaec","#f2f2f2"]},Pastel2:{3:["#b3e2cd","#fdcdac","#cbd5e8"],4:["#b3e2cd","#fdcdac","#cbd5e8","#f4cae4"],5:["#b3e2cd","#fdcdac","#cbd5e8","#f4cae4","#e6f5c9"],6:["#b3e2cd","#fdcdac","#cbd5e8","#f4cae4","#e6f5c9","#fff2ae"],7:["#b3e2cd","#fdcdac","#cbd5e8","#f4cae4","#e6f5c9","#fff2ae","#f1e2cc"],8:["#b3e2cd","#fdcdac","#cbd5e8","#f4cae4","#e6f5c9","#fff2ae","#f1e2cc","#cccccc"]},Set1:{3:["#e41a1c","#377eb8","#4daf4a"],4:["#e41a1c","#377eb8","#4daf4a","#984ea3"],5:["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00"],6:["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33"],7:["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33","#a65628"],8:["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33","#a65628","#f781bf"],9:["#e41a1c","#377eb8","#4daf4a","#984ea3","#ff7f00","#ffff33","#a65628","#f781bf","#999999"]},
 	Set2:{3:["#66c2a5","#fc8d62","#8da0cb"],4:["#66c2a5","#fc8d62","#8da0cb","#e78ac3"],5:["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854"],6:["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f"],7:["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494"],8:["#66c2a5","#fc8d62","#8da0cb","#e78ac3","#a6d854","#ffd92f","#e5c494","#b3b3b3"]},Set3:{3:["#8dd3c7","#ffffb3","#bebada"],4:["#8dd3c7","#ffffb3","#bebada","#fb8072"],5:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3"],6:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462"],7:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69"],8:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5"],9:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9"],10:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd"],11:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5"],12:["#8dd3c7","#ffffb3","#bebada","#fb8072","#80b1d3","#fdb462","#b3de69","#fccde5","#d9d9d9","#bc80bd","#ccebc5","#ffed6f"]}}; 
-
