@@ -64,33 +64,7 @@
         </div>
 
         <!-- Placeholder for CSV data at the bottom of the page -->
-        <div class="csv-table-section">
-          <h3>Data Preview</h3>
-          <% if (csvData && csvData.length > 0) { %>
-            <div id="csv-table-container" style="overflow-x: auto;">
-              <table border="1" cellpadding="5" cellspacing="0">
-                <thead>
-                  <tr>
-                    <% Object.keys(csvData[0]).forEach(function(key) { %>
-                      <th><%= key %></th>
-                    <% }); %>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% csvData.forEach(function(row) { %>
-                    <tr>
-                      <% Object.keys(row).forEach(function(key) { %>
-                        <td><%= row[key] %></td>
-                      <% }); %>
-                    </tr>
-                  <% }); %>
-                </tbody>
-              </table>
-            </div>
-          <% } else { %>
-            <p>No data to display.</p>
-          <% } %>
-        </div>
+        
         <div style="display:none;" id="show-caption" ></div>
       </div>      
 

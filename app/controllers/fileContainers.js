@@ -8,6 +8,7 @@ var Promise = require("bluebird");
 var config = require("../../config/config");
 var mailer = require("../../config/mailer");
 const { ObjectId } = require("mongodb");
+const path = require("path");
 
 // Load other models
 var Users = mongoose.model("User");
@@ -176,59 +177,57 @@ exports.displayDatascape = function (req, res) {
         req.user &&
         req.user._id.toString() === doc.parent.id;
 
-    //   if (doc.viewableTo(req.user)) {
-        const fs = require("fs");
-    const csvFilePath = doc.file.path;
-    let csvData = [];
+      //   if (doc.viewableTo(req.user)) {
+      const fs = require("fs");
+      const csvFilePath = doc.file.path;
+      let csvData = [];
 
-    try {
-      const data = fs.readFileSync(csvFilePath, "utf8");
-      csvData = data.split("\an").map(row => row.split(",")); // Simple CSV parsing
-    } catch (err) {
-      console.error("Error reading CSV file:", err);
-    }
-    res.render("datascape.ejs", {
-      user: req.user,
-      datascape: doc,
-      isOwner: isOwner,
-      csvData: csvData // Pass the parsed data to EJS
-    });
-    //   } else {
-    //     res.render("request-access.ejs", { user: req.user, datascape: doc });
-    //   }
+      try {
+        const data = fs.readFileSync(csvFilePath, "utf8");
+        csvData = data.split("an").map((row) => row.split(",")); // Simple CSV parsing
+      } catch (err) {
+        console.error("Error reading CSV file:", err);
+      }
+      res.render("datascape.ejs", {
+        user: req.user,
+        datascape: doc,
+        isOwner: isOwner,
+        csvData: csvData, // Pass the parsed data to EJS
+      });
+      //   } else {
+      //     res.render("request-access.ejs", { user: req.user, datascape: doc });
+      //   }
     }
   );
 };
 
 //http://10.1.0.117:3000/u/USER-ID/datascapes/6qh4c0418aor
 exports.datascapeGetCSV = function (req, res) {
-  var query = req.params.bullet
-    ? {
-        "links.bullet": req.params.bullet,
-      }
-    : {
-        "parent.id": req.params.userID,
-        "links.bullet": req.params.datascape,
-      };
+  console.log("wertyuio");
+  const filePath = "C:\\Users\\PAVILION\\Downloads\\archive\\data.csv";
 
-  FileContainers.findOne(query, function (err, doc) {
+  // Check if the file exists before reading it
+  fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
-      res.status(500).send({ err: "Server error" });
-      throw new Error(err);
+      console.error("File not found:", err);
+      return res.status(404).send({ err: "File not found" });
     }
 
-    if (!doc) return res.status(404).send({ err: "File not found" });
+    // Set headers to indicate file type
+    res.writeHead(200, {
+      "Content-Type": "text/csv",
+      "Content-Disposition": 'attachment; filename="data.csv"',
+    });
 
-    if (doc.viewableTo(req.user)) {
-      doc.getFile(res);
-      doc.save(function (saveErr) {
-        if (saveErr) {
-          throw new Error(saveError);
-        }
-      });
-    } else {
-      res.status(404).send({ err: "File not found" });
-    }
+    // Create a readable stream and pipe it to the response
+    const readStream = fs.createReadStream(filePath);
+    readStream.pipe(res);
+
+    // Handle any errors that occur during streaming
+    readStream.on("error", (streamErr) => {
+      console.error("Error reading the file:", streamErr);
+      res.status(500).send({ err: "Unable to send the file" });
+    });
   });
 };
 

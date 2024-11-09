@@ -7,82 +7,83 @@ var focusEntity  ={
 };
 
 
-$(function(){
+$(function() {
     
     // Twitter link
     var twitterLink = $("#twitter-link");
     var twitterLinkBody = {
-	url: "http://pcaso.io/" + focusEntity.links.bullet,
-	text: "Explore this datascape with me: ",
-	hashtags: "Pcaso" // Comma separated, NO SPACES....
+        url: "http://pcaso.io/" + focusEntity.links.bullet,
+        text: "Explore this datascape with me: ",
+        hashtags: "Pcaso" // Comma separated, NO SPACES....
     }
     
-    $("#twitter-link").attr("href", "https://twitter.com/intent/tweet?" + $.param( twitterLinkBody ))
+    $("#twitter-link").attr("href", "https://twitter.com/intent/tweet?" + $.param(twitterLinkBody));
     
-	console.log( $("#twitter-link").attr("href") );
-    
+    console.log($("#twitter-link").attr("href"));
     
     // Take snapshot
-    $('#take-snapshot').click(function(){
-	
-	$("text").hide();
-	$("path").hide();
-	
-        var focusElement =  "#pcaso";
-	var mySvg = document.querySelector( focusElement );    
-	var canvas = document.createElement('canvas');
-	
-	// For user when focusing on an element. WIP
-	// var canvgSettings = {
-	// 	offsetX: parseInt( $('#box-preview').attr("x")),
-	// 	offsetY: parseInt( $('#box-preview').attr("y")),
-	// 	log: true
-	// }
-	
-        canvas.height = mySvg.getAttribute('height'); //$('#box-preview').attr("height");//
-        canvas.width = mySvg.getAttribute('width'); // $('#box-preview').attr("width");
+    $('#take-snapshot').click(function() {
         
-	canvg(canvas, mySvg.innerHTML.trim() ); //, canvgSettings);
-	
-        var dataURL = canvas.toDataURL('image/png');
-        var data = atob(dataURL.substring('data:image/png;base64,'.length)),
-
-        asArray = new Uint8Array(data.length);
-
-	$('#img-out').attr('src', dataURL );
-	
-        for (var i = 0, len = data.length; i < len; ++i) {
-	    asArray[i] = data.charCodeAt(i);
-        }
-	$("text").show();
-	
-
-	// Customer wants to update thumbnail with checkbox,
-	// Separate button was recommended
-	if( $('#update-thubnail').is(':checked') ){
-	    var thumbnailData = {
-		'datascapeID': focusEntity._id,
-		'rawImageData': dataURL
-	    };
-	 
-	    $.ajax({
-		type: 'POST',
-		url: '/api/datascapes/update-thumbnail',
-		data: thumbnailData,
-		cache: false,
-		fail: console.log,
-		dataType: 'json'
-	    }).success(function(data){
-		$('#thumbnail-success').attr("hidden", false);
-	    });
-	}
-	
-	var blob = new Blob([asArray.buffer], {type: 'image/png'});
-        saveAs(blob,  focusEntity.displaySettings.title+ '.png');
-	
+        $("text").hide();
+        $("path").hide();
+        
+        var focusElement = "#pcaso";
+        var mySvg = document.querySelector(focusElement);    
+        var canvas = document.createElement('canvas');
+        
+        canvas.height = mySvg.getAttribute('height');
+        canvas.width = mySvg.getAttribute('width');
+        
+        // Create an image to render SVG on canvas
+        var img = new Image();
+        var svgData = new XMLSerializer().serializeToString(mySvg);
+        var svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(svgBlob);
+        
+        img.onload = function() {
+            var context = canvas.getContext('2d');
+            context.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+            
+            var dataURL = canvas.toDataURL('image/png');
+            $('#img-out').attr('src', dataURL);
+            
+            var data = atob(dataURL.substring('data:image/png;base64,'.length)),
+                asArray = new Uint8Array(data.length);
+                
+            for (var i = 0, len = data.length; i < len; ++i) {
+                asArray[i] = data.charCodeAt(i);
+            }
+            
+            $("text").show();
+            
+            // Customer wants to update thumbnail with checkbox
+            if ($('#update-thumbnail').is(':checked')) {
+                var thumbnailData = {
+                    'datascapeID': focusEntity._id,
+                    'rawImageData': dataURL
+                };
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/datascapes/update-thumbnail',
+                    data: thumbnailData,
+                    cache: false,
+                    fail: console.log,
+                    dataType: 'json'
+                }).done(function(data) {
+                    $('#thumbnail-success').attr("hidden", false);
+                });
+            }
+            
+            var blob = new Blob([asArray.buffer], { type: 'image/png' });
+            saveAs(blob, focusEntity.displaySettings.title + '.png');
+        };
+        
+        img.src = url;
     });
-    
 });
+
 
 
 // Legacy code. The following was preexisting Pcaso.io code used for datascape paiting
@@ -130,14 +131,15 @@ $(function(){
     var rawData = []
     var loadDataConfig = {}
 
-    var filePath = location.pathname;
+    var filePath = "http://localhost:8080/u/USER-ID/datascapes/6qh4c0418aor/csv";
+	console.log(filePath)
     var showUpload = false;
 
-    $.get(filePath + '/csv', function(csvData){
+    $.get(filePath, function(csvData){
 	if(!csvData) throw new Error( 'Unable to load csv file' );
 	datasheet = csvData;
 	parseData(csvData);
-	
+
     });
 
     // ===========================================================================
@@ -168,12 +170,12 @@ $(function(){
 	// Un-hide step 2
 	
 	//document.getElementById('step2').style.visibility = "visible";
-
 	data = d3.csv.parse(rawData, function(d, i){
 	    
 	    if( i < _c['nLinesPrev'] ) head.push(d);
 	    return d;
 	});
+	console.log(data)
 	
 	// Header
 	var fields = d3.keys(head[0]);
@@ -262,7 +264,6 @@ $(function(){
 
 		// --		
 		/* p2 = "fields-pca"; p = config[p2]; _c['fields-pca'] = [];
-		console.log(config.search("fields-pca"))
 		for(i=0; i<p.length; i++) _c['fields-pca'][i] = parseInt(p[i])
 
 		p2 = "fields-meta";    p = config[p2]; _c['fields-meta'] = [];    for(i=0; i<p.length; i++) _c['fields-meta'][i] = parseInt(p[i])
@@ -284,12 +285,10 @@ $(function(){
 		    for(var i in _c['fields-meta-id'])
 			//		    document.getElementById("s[" + (_c['fields-meta-id'][i]-1) + "]").selectedIndex = 0;
 			//
-			console.log(config);
 		_c["caption"] = config["caption"]
 		//
 		// document.getElementById('pcaso-upload').style.display = "none"
 		*/
-		console.log("in here")
 		document.getElementById('pcaso-panel').style.display = "inline-block";
 document.getElementById('pcaso').style.display = "inline";
 
@@ -297,7 +296,6 @@ document.getElementById('pcaso').style.display = "inline";
 		// document.getElementById('pcaso').style.visibility = "visible"
 		//document.getElementById('backBtn').style.display = "block"
 		//document.getElementById('loading').style.display = "none"		//
-		console.log("in here")
 		pcaso();
 	    }
 	}); //  POSSIBLE CAUSE
@@ -342,7 +340,6 @@ document.getElementById('pcaso').style.display = "inline";
 	_c['size']   = getWindowSize() / (0.2 + _c['nPCs'])
 
 	responsive_padding = getWindowSize() * _c['padding_fraction'];
-	console.log(responsive_padding);
 
 	point_size = 2;// _c['pt_size']+parseInt(5/Math.log(data.length));
 
@@ -385,8 +382,9 @@ document.getElementById('pcaso').style.display = "inline";
 
 	// -- Load data
 	// Parse header
-	_p_header = d3.keys(data[0])
-	PCs = _p_header.filter(function(d, i) { return (i+1) > -1; })
+	_p_header = d3.keys(data[6])
+	var PCs = _p_header.filter(function(d, i) { return (i+1) > -1; })
+	
 
 	// Get domain for each PC
 	domainByPC = {};
@@ -426,11 +424,11 @@ document.getElementById('pcaso').style.display = "inline";
 
 	// Define x/y axes
 	var xAxis, yAxis;
-	var x    = d3.scale.linear().range([responsive_padding / 2, _c["size"] - responsive_padding / 2]),
-	y    = d3.scale.linear().range([_c["size"] - responsive_padding / 2, responsive_padding / 2]),
-	PCsX = PCs.concat(PCs[0]),
-	PCsY = PCs.concat(PCs[1]);
-
+	var x    = d3.scale.linear().range([responsive_padding / 2, _c["size"] - responsive_padding / 2])
+	var y    = d3.scale.linear().range([_c["size"] - responsive_padding / 2, responsive_padding / 2])
+	var PCsX = PCs.concat(PCs[0])
+	var PCsY = PCs.concat(PCs[1]);
+	
 
 	// Plot the cells
 
@@ -443,10 +441,9 @@ document.getElementById('pcaso').style.display = "inline";
 	    .attr("class", "cell")
 	// .attr("transform", function(d){ return "translate(" + (_c["width"]-_c["size"]-(d.i*_c['size'])) + "," + (_c["height"]-_c["size"]-(d.j*_c['size'])) + ")"; })
 	    .attr("transform", function(d){ return "translate(" + (_c["margin-left"] + d.i*_c['size']) + "," + (d.j*_c['size']) + ")"; })
-	    .each(drawCell);
-
-
-	drawPreview(PC_pairs[0]);
+	    // .each(drawCell);
+		drawPreview(PC_pairs[0]);
+		
 
 	
 
@@ -499,7 +496,6 @@ document.getElementById('pcaso').style.display = "inline";
 	    // console.log([  responsive_padding / 2, size - responsive_padding / 2]);
 	    preview_x_scale.range([  responsive_padding / 2, size - responsive_padding / 2]);
 	    preview_y_scale.range([ size - responsive_padding / 2, responsive_padding / 2]);
-		console.log("huh",domainByPC)
 	    preview_x_scale.domain(domainByPC[p.x]);
 	    preview_y_scale.domain(domainByPC[p.x]);
 
@@ -624,7 +620,6 @@ document.getElementById('pcaso').style.display = "inline";
 	    
 	    // -- Draw
 	    // Set x/y ranges and axes
-		console.log()
 	    x.domain(domainByPC[p.x]);
 	    y.domain(domainByPC[p.j]);
 	    
@@ -914,7 +909,6 @@ document.getElementById('pcaso').style.display = "inline";
 
 	if (numeric_columns.indexOf(_p_header[_p_colorBy-1]) > -1) {
 	    // Numeric: Diverging
-		console.log("ahaha0", legend)
 	    if (legend.length <= 3) {
 		_p_color   = d3.scale.ordinal().domain(legend).range(colorbrewer["RdYlBu"][3]); // Use PuBuGn to avoid yellow 
 	    } else if (legend.length <= 11) {
@@ -1046,7 +1040,6 @@ document.getElementById('pcaso').style.display = "inline";
 
     // var brushCell;
     function brushstart() {
-	console.log("brushstart")
 	d3.select(this).call(brush.clear());
 	newCircles = _pcaso.selectAll("circle");
 	preview_x_scale.domain(domainByPC[current_p_in_preview.x]);
@@ -1088,7 +1081,6 @@ document.getElementById('pcaso').style.display = "inline";
     }
 
     function brushend() {
-	console.log("brushend")
 	if (brush.empty()) {
 	    
 	    colorPoints(_p_colorBy);
@@ -1201,7 +1193,6 @@ document.getElementById('pcaso').style.display = "inline";
 		// This will be the first element of `x` and the last element of `y`
 		pairs.push({ i: 0, j: n, x: x[0], y: y[n] });
 	
-		console.log("pairs", pairs);
 		return pairs;
 	}
 
