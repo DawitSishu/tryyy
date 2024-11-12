@@ -232,29 +232,39 @@ exports.datascapeGetCSV = function (req, res) {
 };
 
 exports.datascapeGetLegacyConfig = function (req, res) {
-  var query = req.params.bullet
-    ? {
-        "links.bullet": req.params.bullet,
-      }
-    : {
-        "parent.id": req.params.userID,
-        "links.bullet": req.params.datascape,
-      };
+  console.log("ss")
+  // var query = req.params.bullet
+  //   ? {
+  //       "links.bullet": req.params.bullet,
+  //     }
+  //   : {
+  //       "parent.id": req.params.userID,
+  //       "links.bullet": req.params.datascape,
+  //     };
+  const defaultLegacyConfig = {
+    "fields-pca": [1, 2, 3, 4, 5, 8, 9, 10, 11],
+    "fields-meta": [6, 7],
+    "fields-meta-id": [],
+    "omit": [],
+    "caption": "Default caption",
+  };
+  //http://localhost:8080/u/suserID/datascapes/sdatascape/config
+  res.send(defaultLegacyConfig);
 
-  FileContainers.findOne(query, function (err, doc) {
-    if (err) {
-      res.status(500).send({ err: "Server error" });
-      throw new Error(err);
-    }
+  // FileContainers.findOne(query, function (err, doc) {
+  //   if (err) {
+  //     res.status(500).send({ err: "Server error" });
+  //     throw new Error(err);
+  //   }
 
-    if (!doc) return res.status(404).send({ err: "File not found" });
+  //   if (!doc) return res.status(404).send({ err: "File not found" });
 
-    if (doc.viewableTo(req.user)) {
-      res.send(doc.displaySettings.legacy);
-    } else {
-      res.status(404).send({ err: "File not found" });
-    }
-  });
+  //   if (doc.viewableTo(req.user)) {
+  //     res.send(doc.displaySettings.legacy);
+  //   } else {
+  //     res.status(404).send({ err: "File not found" });
+  //   }
+  // });
 };
 
 exports.getDatascapeSettings = function (req, res) {
