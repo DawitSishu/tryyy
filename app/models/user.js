@@ -50,6 +50,24 @@ UnauthenticatedUserSchema.methods.validPassword = function(password) {
     return bcrypt.compareSync(password, this.password);
 };
 
+UnauthenticatedUserSchema.statics.register = function(first, last, email, pass) {
+    var id = mongoose.Types.ObjectId();
+    var user = new this({
+        _id: id,
+        name: { first: first, last: last },
+        email: email,
+        password: this.generateHash(pass),
+        localDataPath: config.root + '/public/users-public-data/' + id.toString(),
+        publicDataPath: config.service.domain + 'users-public-data/' + id.toString(),
+        links: {
+            avatar: config.service.domain + 'users-public-data/' + id.toString() + '/imgs/avatar',
+            link: config.service.domain + "u/" + id.toString(),
+            local: "/u/" + id.toString()
+        }
+    });
+    return user;
+};
+
 // Extend BaseUserSchema for regular users
 var UserSchema = new Schema(
     Object.assign({}, BaseUserSchema.obj, {
@@ -235,6 +253,24 @@ UserSchema.pre('save', function(next) {
         next();
     }
 });
+
+UserSchema.statics.convert = function(unauthenticatedUser) {
+    var id = mongoose.Types.ObjectId(); // Generate a new ID for the User
+    var user = new this({
+        _id: id,
+        name: unauthenticatedUser.name,
+        email: unauthenticatedUser.email,
+        password: unauthenticatedUser.password,
+        localDataPath: config.root + '/public/users-public-data/' + id.toString(),
+        publicDataPath: config.service.domain + 'users-public-data/' + id.toString(),
+        links: {
+            avatar: config.service.domain + 'users-public-data/' + id.toString() + '/imgs/avatar',
+            link: config.service.domain + "u/" + id.toString(),
+            local: "/u/" + id.toString()
+        }
+    });
+    return user;
+};
 
 // Other hooks and methods unchanged for brevity
 

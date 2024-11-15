@@ -73,6 +73,9 @@ module.exports = function(app, passport) {
     });
     
     app.post(   '/upload-datascape',        users.createDataset);
+    app.get('/datascape/:bullet/csv', files.datascapeGetCSV);
+    app.get('/datascape/:bullet/config', files.datascapeGetLegacyConfig);
+
 
     app.get(    '/notifications',           users.getNotifications);
     app.get(    '/notifications/:notificationID', notifications.redirect );
@@ -81,7 +84,7 @@ module.exports = function(app, passport) {
     app.get(    '/u/:userID/settings',        users.profileSettings );
     app.post(   '/u/:userID/settings',        users.editProfileSettings );
     app.get(    '/u/:userID/delete-account',  users.deleteAccount);
-    // app.get(    '/u/:userID/datasets/',                         files.displayUserDatasets );
+    //app.get(    '/u/:userID/datasets/',                         files.displayUserDatasets );
     
     app.get(    '/u/:userID/datascapes/:datascape',                files.displayDatascape );
     app.get(    '/u/:userID/datascapes/:datascape/csv',            files.datascapeGetCSV );

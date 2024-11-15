@@ -55,7 +55,7 @@ module.exports = {
                         console.warn('CSV data parsing resulted in empty data:', filePath);
                         return callback(null, []); // Return empty data
                     }
-                    console.log('CSV data parsing complete. Total rows parsed:', csvData.length);
+                    console.log('CSV data parsing complete. Total rows parsed: haaaaaaaaaaa', csvData.length);
                     callback(null, csvData);
                 })
                 .on('error', function(err) {

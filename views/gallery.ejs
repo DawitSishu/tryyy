@@ -4,107 +4,109 @@
   <body>
     <%- include header.ejs %>
     <main>
-      <script>
-        console.log("Script loaded");
-    
-        var allFiles = <%- JSON.stringify(files || []) %>;
-        console.log("All files received from the server:", allFiles);
-    
-        var currentPage = 0;
-        var itemsPerPage = 1;
-    
-        function displayPage(page) {
-          var container = document.getElementById('datascape-tile-preview-anchor');
-          container.innerHTML = '';
-    
-          if (allFiles.length === 0) {
-            container.innerHTML = '<p>No files found.</p>';
-            return;
-          }
-    
-          var start = page * itemsPerPage;
-          var end = Math.min(start + itemsPerPage, allFiles.length);
-    
-          for (var i = start; i < end; i++) {
-            var file = allFiles[i];
-            var fileName = file.file && file.file.name ? file.file.name : 'Unknown File';
-
-            // console.log("Displaying file:", file);
-			console.log('file.csvData:', file.csvData);
-
-
-            if (file.csvData && Array.isArray(file.csvData) && file.csvData.length > 0) {
-              console.log("CSV Data for file:", fileName, file.csvData);
-
-              var headers = Object.keys(file.csvData[0]);
-
-              var tableHtml = `
-                <div class="pure-u-1 centered-m">
-                  <h3>File Name: ${fileName}</h3>
-                  <table class="pure-table pure-table-bordered">
-                    <thead>
-                      <tr>
-              `;
-
-              headers.forEach(function(header) {
-                tableHtml += `<th>${header}</th>`;
-              });
-
-              tableHtml += `
-                      </tr>
-                    </thead>
-                    <tbody>
-              `;
-
-              file.csvData.forEach(function(row) {
-                tableHtml += '<tr>';
-                headers.forEach(function(header) {
-                  tableHtml += `<td>${row[header]}</td>`;
-                });
-                tableHtml += '</tr>';
-              });
-
-              tableHtml += `
-                    </tbody>
-                  </table>
-                </div>
-              `;
-              container.innerHTML += tableHtml;
-            } else {
-              console.warn("No CSV data found or an error occurred for file:", fileName);
-              var noDataHtml = `
-                <div class="pure-u-1 centered-m">
-                  <h3>File Name: ${fileName}</h3>
-                  <p>No data available</p>
-                </div>
-              `;
-              container.innerHTML += noDataHtml;
-            }
-          }
-
-          document.getElementById('prev-page').disabled = page <= 0;
-          document.getElementById('next-page').disabled = end >= allFiles.length;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-          document.getElementById('prev-page').addEventListener('click', function() {
-            if (currentPage > 0) {
-              currentPage--;
-              displayPage(currentPage);
-            }
-          });
-    
-          document.getElementById('next-page').addEventListener('click', function() {
-            if ((currentPage + 1) * itemsPerPage < allFiles.length) {
-              currentPage++;
-              displayPage(currentPage);
-            }
-          });
-    
-          displayPage(currentPage);
-        });
-      </script>
-    
+		<script>
+			console.log("Script loaded");
+		
+			var allFiles = <%- JSON.stringify(files || []) %>;
+			console.log("All files received from the server:", allFiles);
+		
+			allFiles.forEach((file, index) => {
+				if (file.csvData) {
+					console.log(`CSV data for file ${index}:`, file.csvData);
+				} else {
+					console.warn(`File ${index} has no csvData or is undefined.`);
+				}
+			});
+		
+			var currentPage = 0;
+			var itemsPerPage = 1;
+		
+			function displayPage(page) {
+				var container = document.getElementById('datascape-tile-preview-anchor');
+				container.innerHTML = '';
+		
+				if (allFiles.length === 0) {
+					container.innerHTML = '<p>No files found.</p>';
+					return;
+				}
+		
+				var start = page * itemsPerPage;
+				var end = Math.min(start + itemsPerPage, allFiles.length);
+		
+				for (var i = start; i < end; i++) {
+					var file = allFiles[i];
+					console.log("Displaying file:", file);
+		
+					if (file.csvData && Array.isArray(file.csvData) && file.csvData.length > 0) {
+						console.log("CSV Data for file:", file.file.name, file.csvData);
+		
+						var tableHtml = `
+							<div class="pure-u-1 centered-m">
+								<h3>File Name: ${file.file.name}</h3>
+								<table class="pure-table pure-table-bordered">
+									<thead>
+										<tr>
+						`;
+		
+						file.csvData[0].forEach(function(header) {
+							tableHtml += `<th>${header}</th>`;
+						});
+		
+						tableHtml += `
+										</tr>
+									</thead>
+									<tbody>
+						`;
+		
+						file.csvData.slice(1).forEach(function(row) {
+							tableHtml += '<tr>';
+							row.forEach(function(cell) {
+								tableHtml += `<td>${cell}</td>`;
+							});
+							tableHtml += '</tr>';
+						});
+		
+						tableHtml += `
+									</tbody>
+								</table>
+							</div>
+						`;
+						container.innerHTML += tableHtml;
+					} else {
+						console.warn("No CSV data found or an error occurred for file:", file.file.name);
+						var noDataHtml = `
+							<div class="pure-u-1 centered-m">
+								<h3>File Name: ${file.file.name}</h3>
+								<p>No data available</p>
+							</div>
+						`;
+						container.innerHTML += noDataHtml;
+					}
+				}
+		
+				document.getElementById('prev-page').disabled = page <= 0;
+				document.getElementById('next-page').disabled = end >= allFiles.length;
+			}
+		
+			document.addEventListener('DOMContentLoaded', function() {
+				document.getElementById('prev-page').addEventListener('click', function() {
+					if (currentPage > 0) {
+						currentPage--;
+						displayPage(currentPage);
+					}
+				});
+		
+				document.getElementById('next-page').addEventListener('click', function() {
+					if ((currentPage + 1) * itemsPerPage < allFiles.length) {
+						currentPage++;
+						displayPage(currentPage);
+					}
+				});
+		
+				displayPage(currentPage);
+			});
+		</script>
+		
       <div class="app-content">
         <h1>Gallery of Public Datascapes</h1>
         <hr class="title-line">
