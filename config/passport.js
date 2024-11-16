@@ -112,7 +112,8 @@ module.exports = function(passport) {
 				newUser.save(function(saveErr) {
 				    if (err) throw new Error( saveErr );   
 				    mailer.useTemplate( 'authenticate-new-user', newUser, function(mailError){
-					//done(mailError, newUser, req.flash('signInMessage', config.service.domain + 'authenticate-account/' + newUser._id )); 
+						console.log(mailError)
+					// done(mailError, newUser, req.flash('signInMessage', config.service.domain + 'authenticate-account/' + newUser._id )); 
 				    }); 
 				});
 				

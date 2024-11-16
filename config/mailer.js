@@ -63,10 +63,13 @@ function MailClient( client ){
     
     // Create a SMTP transporter object
     var transport   =  nodemailer.createTransport({
-	host: 'smtpout.secureserver.net', 
-	port: 465, 
-	auth: config.secrets.emailCredentials[ client ],
-	secure: true
+		host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "dawitshishu@gmail.com",
+          pass: "pxbu sapn ftgv gqmi",
+        },
     });
 
     newClient.message = {
@@ -135,10 +138,7 @@ function MailClient( client ){
 	if( !valid ) callback( new Error( 'Malformed email, all fields must be filled' ));
 
 	// send
-	
-	if( process.env['NODE_ENV'] === 'test' || process.env['NODE_ENV'] === 'disable-emails')
-	    callback( false, {});
-	else transport.sendMail(newClient.message, callback);
+	 transport.sendMail(newClient.message, callback);
     }
     
     return  newClient;

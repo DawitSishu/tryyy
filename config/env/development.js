@@ -5,8 +5,8 @@
 module.exports = {
     db: 'mongodb://localhost/new', 
     service: {
-	domain: 'https://google.com/',
-	api: 'https://google.com/'
+	domain: 'http://127.0.0.1:8080/',
+	api: 'http://127.0.0.1:8080/api'
     }
 }
 
