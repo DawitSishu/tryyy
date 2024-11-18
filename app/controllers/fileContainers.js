@@ -147,7 +147,7 @@ exports.datascapeGetCSV = function(req, res) {
         }
 
         // Use the file path from the document's `file.path`
-        filePath = doc.file?.name;
+        filePath = doc.file?.path;
 		name= doc.file?.name
 		fs.access(filePath, fs.constants.F_OK, (err) => {
 			if (err) {

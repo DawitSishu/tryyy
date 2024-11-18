@@ -282,12 +282,6 @@ exports.authenticateAccount = function(req, res) {
     });
 };
 
-
-
-
-
-
-
 exports.profileSettings = function(req, res) {
     var isOwner = req.isAuthenticated() && req.user && req.user._id.toString() === req.params.userID;
     if (!isOwner) return res.redirect('/');
